@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trixelino</title>
+  <meta name="description" content="Trixelino – ein Spiel rund ums Einfärben von Dreiecken. Bald hier.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <style>
+    :root {
+      --bg: #fbf8f3;
+      --text: #1f1d1a;
+      --muted: #6b655c;
+      --leer: #ece5d9;
+      --f1: #e8590c;
+      --f2: #1c7ed6;
+      --f3: #2f9e44;
+      --f4: #f59f00;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #17161b;
+        --text: #f1eee8;
+        --muted: #a39d93;
+        --leer: #2a2830;
+        --f1: #ff7a33;
+        --f2: #4dabf7;
+        --f3: #51cf66;
+        --f4: #fcc419;
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      padding: 32px 16px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    main { width: 100%; max-width: 640px; text-align: center; }
+    #muster {
+      display: block;
+      width: 100%;
+      max-width: 340px;
+      height: auto;
+      margin: 0 auto 36px;
+      overflow: visible;
+    }
+    #muster polygon {
+      stroke: var(--bg);
+      stroke-width: 3;
+      stroke-linejoin: round;
+      cursor: pointer;
+      transition: fill 0.25s ease;
+    }
+    #muster polygon:hover { opacity: 0.85; }
+    h1 {
+      margin: 0 0 0.3em;
+      font-size: clamp(2.6rem, 10vw, 4.5rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    p {
+      max-width: 30em;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 1.125rem;
+      line-height: 1.6;
+    }
+    .hinweis { margin-top: 1.75rem; font-size: 0.875rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <svg id="muster" role="img" aria-label="Großes Dreieck aus bunten kleinen Dreiecken"></svg>
+    <h1>Trixelino</h1>
+    <p>Hier entsteht ein Spiel rund ums Einfärben von Dreiecken. Bald geht’s los.</p>
+    <p class="hinweis">Klick ruhig schon mal auf die Dreiecke.</p>
+  </main>
+
+  <script>
+    // Großes Dreieck aus kleinen Dreiecken; ein Klick färbt reihum mit vier Farben ein.
+    (function () {
+      const reihen = 6;
+      const seite = 60;
+      const hoehe = (seite * Math.sqrt(3)) / 2;
+      const farben = ["var(--leer)", "var(--f1)", "var(--f2)", "var(--f3)", "var(--f4)"];
+      const svg = document.getElementById("muster");
+      svg.setAttribute("viewBox", `0 0 ${reihen * seite} ${(reihen * hoehe).toFixed(1)}`);
+
+      for (let r = 0; r < reihen; r++) {
+        const y = r * hoehe;
+        const start = ((reihen - 1 - r) * seite) / 2;
+        for (let i = 0; i <= 2 * r; i++) {
+          let punkte;
+          if (i % 2 === 0) {
+            const x = start + (i / 2) * seite;
+            punkte = [[x, y + hoehe], [x + seite / 2, y], [x + seite, y + hoehe]];
+          } else {
+            const x = start + ((i - 1) / 2) * seite + seite / 2;
+            punkte = [[x, y], [x + seite, y], [x + seite / 2, y + hoehe]];
+          }
+          const dreieck = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+          dreieck.setAttribute("points", punkte.map((p) => p.map((z) => z.toFixed(1)).join(",")).join(" "));
+          let stufe = Math.random() < 0.45 ? 0 : 1 + Math.floor(Math.random() * 4);
+          dreieck.style.fill = farben[stufe];
+          dreieck.addEventListener("click", () => {
+            stufe = (stufe + 1) % farben.length;
+            dreieck.style.fill = farben[stufe];
+          });
+          svg.appendChild(dreieck);
+        }
+      }
+    })();
+  </script>
+</body>
+</html>
